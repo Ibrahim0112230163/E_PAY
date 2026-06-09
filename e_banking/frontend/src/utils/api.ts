@@ -2,7 +2,18 @@
 import { getUserSession } from './session';
 import type { EncryptedPayload } from './crypto';
 
-const API_BASE_URL = import.meta.env?.VITE_BACKEND_URL || 'http://localhost:5001';
+const configuredApiBaseUrl = import.meta.env?.VITE_BACKEND_URL;
+const isHttpsPage =
+  typeof window !== 'undefined' && window.location.protocol === 'https:';
+const wouldDowngradeLocalhost =
+  configuredApiBaseUrl?.startsWith('http://localhost') ||
+  configuredApiBaseUrl?.startsWith('http://127.0.0.1');
+const API_BASE_URL =
+  isHttpsPage && (configuredApiBaseUrl === undefined || wouldDowngradeLocalhost)
+    ? ''
+    : configuredApiBaseUrl === undefined
+    ? 'http://localhost:5001'
+    : configuredApiBaseUrl.replace(/\/$/, '');
 
 function getAuthHeaders(): Record<string, string> {
   const session = getUserSession();

@@ -1,6 +1,6 @@
 # Docker Sandbox Guide
 
-This project can run as a single Dockerized pentest target. The container builds the React frontend, serves it through the Flask backend, and exposes the app on port `5001`.
+This project can run as a Dockerized pentest target behind an Nginx TLS reverse proxy. The app container builds the React frontend, serves it through the Flask backend, and Nginx exposes the sandbox over HTTPS.
 
 ## Start The Sandbox
 
@@ -13,13 +13,15 @@ docker compose up --build
 Open:
 
 ```text
-http://localhost:5001
+https://localhost
 ```
+
+The TLS certificate is self-signed, so your browser will show a certificate warning. Accept it only for this local sandbox.
 
 Health check:
 
 ```powershell
-curl http://localhost:5001/health
+curl -k https://localhost/health
 ```
 
 Expected response:
@@ -36,18 +38,26 @@ Docker Compose loads backend secrets from:
 e_banking/backend/.env.backend
 ```
 
-The frontend is built with this default backend URL:
+The Docker frontend build uses same-origin API calls by default, so browser requests stay on HTTPS through Nginx.
+
+For non-Docker local development, `frontend/.env` can still use:
 
 ```text
 http://localhost:5001
 ```
 
-To use another host port:
+To use another HTTPS host port:
 
 ```powershell
-$env:APP_PORT="8080"
-$env:VITE_BACKEND_URL="http://localhost:8080"
+$env:NGINX_SSL_PORT="8443"
+$env:VITE_BACKEND_URL=""
 docker compose up --build
+```
+
+Then open:
+
+```text
+https://localhost:8443
 ```
 
 ## Reset The Sandbox
@@ -73,14 +83,14 @@ zap-reports/zap-baseline-report.html
 
 ## Notes For Penetration Testing
 
-The app and security tooling share a private Docker network named `e-pay-sandbox`. From another container on that network, the target URL is:
+The app, Nginx, and security tooling share a private Docker network named `e-pay-sandbox`. From another container on that network, the HTTPS target URL is:
 
 ```text
-http://app:5001
+https://nginx
 ```
 
 From your host machine, the target URL is:
 
 ```text
-http://localhost:5001
+https://localhost
 ```

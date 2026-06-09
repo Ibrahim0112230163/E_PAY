@@ -4,7 +4,7 @@ services:
       context: ./e_banking
       dockerfile: Dockerfile
       args:
-        VITE_BACKEND_URL: ${VITE_BACKEND_URL:-http://localhost:5001}
+        VITE_BACKEND_URL: ${VITE_BACKEND_URL-}
     image: e-pay-sandbox:latest
     container_name: e-pay-sandbox-app
     env_file:
@@ -12,8 +12,8 @@ services:
     environment:
       PORT: 5001
       FLASK_ENV: production
-    ports:
-      - "${APP_PORT:-5001}:5001"
+    expose:
+      - "5001"
     networks:
       - e-pay-sandbox
     healthcheck:
@@ -28,6 +28,32 @@ services:
       start_period: 20s
     restart: unless-stopped
 
+  nginx:
+    image: nginx:alpine
+    container_name: e-pay-sandbox-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_PORT:-80}:80"
+      - "${NGINX_SSL_PORT:-443}:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - e-pay-sandbox
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "wget --no-check-certificate -qO- https://127.0.0.1/health >/dev/null"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
   zap:
     image: ghcr.io/zaproxy/zaproxy:stable
     container_name: e-pay-sandbox-zap
@@ -37,14 +63,14 @@ services:
       [
         "zap-baseline.py",
         "-t",
-        "http://app:5001",
+        "https://nginx",
         "-r",
         "zap-baseline-report.html"
       ]
     volumes:
       - ./zap-reports:/zap/wrk:rw
     depends_on:
-      app:
+      nginx:
         condition: service_healthy
     networks:
       - e-pay-sandbox
