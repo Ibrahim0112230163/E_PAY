@@ -85,13 +85,15 @@ Open:
 frontend/.env
 ```
 
-For local development, keep:
+For the separate Vite development server, keep:
 
 ```env
 VITE_BACKEND_URL=http://localhost:5001
 ```
 
 If your backend runs on another port, update this value and restart the frontend dev server.
+
+For the HTTPS sandbox or the one-command local Flask launcher, API calls are same-origin and stay on HTTPS.
 
 ## 6. Install Backend Dependencies
 
@@ -113,7 +115,7 @@ npm install
 cd ..
 ```
 
-## 8. Run The Backend
+## 8. Run The App With Local HTTPS
 
 From the project root:
 
@@ -121,16 +123,20 @@ From the project root:
 python app.py
 ```
 
-Expected backend URL:
+On first run, this command builds the frontend if `frontend/dist` is missing. It uses the self-signed certificate from `../nginx/ssl`.
+
+Expected app URL:
 
 ```text
-http://127.0.0.1:5001
+https://localhost:5001
 ```
+
+Your browser will show a self-signed certificate warning. Accept it only for local testing.
 
 Health check:
 
 ```powershell
-curl http://127.0.0.1:5001/health
+curl -k https://localhost:5001/health
 ```
 
 Expected response:
@@ -139,9 +145,9 @@ Expected response:
 {"message":"E-Banking API is running","status":"ok"}
 ```
 
-## 9. Run The Frontend
+## 9. Optional Separate Frontend Dev Server
 
-Open a second terminal.
+Use this only when you want Vite hot reload while editing the UI. Open a second terminal.
 
 From the project root:
 
@@ -157,6 +163,8 @@ http://127.0.0.1:5173/
 ```
 
 Open that URL in the browser.
+
+The separate Vite development server is HTTP. For penetration testing the TLS surface, use `python app.py` or Docker Compose instead.
 
 ## 10. First User Flow
 

@@ -13,6 +13,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIST_DIR = BASE_DIR.parent / "frontend" / "dist"
+FRONTEND_INDEX_FILE = FRONTEND_DIST_DIR / "index.html"
 
 # Load .env.backend first so env vars override supabase_config.py defaults
 load_dotenv(dotenv_path=BASE_DIR / '.env.backend')
@@ -57,6 +58,27 @@ def is_missing_schema_error(error: Exception) -> bool:
 
 def missing_schema_response():
     return jsonify({"status": "error", "message": MISSING_SCHEMA_MESSAGE}), 500
+
+
+def frontend_build_exists() -> bool:
+    return FRONTEND_INDEX_FILE.is_file()
+
+
+def missing_frontend_response():
+    message = (
+        "Frontend build is missing. Run `cd e_banking/frontend && npm install && npm run build`, "
+        "or start the Docker sandbox with `docker compose up --build`."
+    )
+    if "text/html" in request.headers.get("Accept", ""):
+        return (
+            "<!doctype html><html><head><title>Frontend build missing</title></head>"
+            "<body><h1>Frontend build missing</h1>"
+            f"<p>{message}</p>"
+            "<p>For TLS sandbox testing, use <code>docker compose up --build</code> and open "
+            "<code>https://localhost</code>.</p>"
+            "</body></html>"
+        ), 503
+    return jsonify({"status": "error", "message": message}), 503
 
 
 def create_notification(profile_id, title, message, notification_type="system", transaction_id=None):
@@ -194,6 +216,8 @@ def health():
 
 @app.route('/')
 def serve_index():
+    if not frontend_build_exists():
+        return missing_frontend_response()
     return app.send_static_file('index.html')
 
 @app.route('/login', methods=['POST'])
@@ -614,13 +638,18 @@ def serve_static(path):
     """Serve static files or index.html for SPA routing"""
     dist_dir = os.path.abspath(app.static_folder)
     requested_path = os.path.realpath(os.path.join(dist_dir, path))
-    if requested_path.startswith(dist_dir) and os.path.isfile(requested_path):
+    is_inside_dist = os.path.commonpath([dist_dir, requested_path]) == dist_dir
+    if is_inside_dist and os.path.isfile(requested_path):
         return send_from_directory(dist_dir, os.path.relpath(requested_path, dist_dir))
+    if not frontend_build_exists():
+        return missing_frontend_response()
     return app.send_static_file('index.html')
 
 @app.errorhandler(404)
 def not_found(error):
     """Handle 404 errors by serving index.html for SPA routing"""
+    if not frontend_build_exists():
+        return missing_frontend_response()
     return app.send_static_file('index.html')
 
 if __name__ == '__main__':

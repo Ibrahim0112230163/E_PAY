@@ -18,6 +18,8 @@ https://localhost
 
 The TLS certificate is self-signed, so your browser will show a certificate warning. Accept it only for this local sandbox.
 
+This is the recommended mode for penetration testing because HTTP is redirected to HTTPS by Nginx.
+
 Health check:
 
 ```powershell
@@ -65,6 +67,28 @@ https://localhost:8443
 ```powershell
 docker compose down
 docker compose up --build
+```
+
+## Local HTTPS Without Docker
+
+From the app folder:
+
+```powershell
+cd e_banking
+python app.py
+```
+
+This uses the same self-signed certificate files and starts:
+
+```text
+https://localhost:5001
+```
+
+If you explicitly need plain HTTP for debugging:
+
+```powershell
+$env:ENABLE_TLS="0"
+python app.py
 ```
 
 ## Run OWASP ZAP Baseline

@@ -17,6 +17,8 @@ cd e_banking
 python app.py
 ```
 
+This starts the local server at `https://localhost:5001` when `nginx/ssl/selfsigned.crt` and `nginx/ssl/selfsigned.key` are available.
+
 From the frontend folder:
 
 ```powershell
