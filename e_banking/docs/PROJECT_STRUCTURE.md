@@ -10,9 +10,10 @@ e_banking/
 
 ## Run
 
-From the outer workspace folder:
+From the app folder:
 
 ```powershell
+cd e_banking
 python app.py
 ```
 

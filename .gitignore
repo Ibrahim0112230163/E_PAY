@@ -1,2 +1,12 @@
 zap-reports/
 Epay/
+node_modules/
+dist/
+__pycache__/
+*.pyc
+*.log
+*.out
+*.err
+.DS_Store
+.idea/
+.vscode/
