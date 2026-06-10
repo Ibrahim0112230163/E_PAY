@@ -26,14 +26,26 @@ export function SendMoney() {
   const dailyLimit = session.daily_limit;
   const spent = session.today_spent;
   const remaining = dailyLimit - spent;
+  const normalizedReceiverUsername = formData.receiverUsername.trim().toLowerCase();
+  const normalizedSessionUsername = session.username.trim().toLowerCase();
+  const isSelfTransaction =
+    normalizedReceiverUsername.length > 0 &&
+    normalizedReceiverUsername === normalizedSessionUsername;
 
   const handleUsernameChange = async (value: string) => {
     setFormData({ ...formData, receiverUsername: value });
+    const trimmedValue = value.trim();
+
+    if (trimmedValue.toLowerCase() === normalizedSessionUsername) {
+      setReceiverFound(false);
+      setSearchingReceiver(false);
+      return;
+    }
     
-    if (value.length > 2) {
+    if (trimmedValue.length > 2) {
       setSearchingReceiver(true);
       try {
-        const result = await checkReceiver(value.trim());
+        const result = await checkReceiver(trimmedValue);
         setReceiverFound(result.found);
       } catch (error) {
         console.error('Error searching receiver:', error);
@@ -50,16 +62,21 @@ export function SendMoney() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(formData.amount);
+    const receiverUsername = formData.receiverUsername.trim();
+
+    if (receiverUsername.toLowerCase() === normalizedSessionUsername) {
+      return;
+    }
 
     if (amount > remaining) {
       alert(`Exceeds daily petty cash limit. Remaining: ৳${remaining.toFixed(2)}`);
       return;
     }
 
-    if (formData.receiverUsername && formData.amount && receiverFound) {
+    if (receiverUsername && formData.amount && receiverFound) {
       navigate('/transaction-processing', {
         state: {
-          receiverUsername: formData.receiverUsername,
+          receiverUsername,
           amount,
         },
       });
@@ -93,6 +110,7 @@ export function SendMoney() {
                 placeholder="Enter bank-assigned username"
                 value={formData.receiverUsername}
                 onChange={(e) => handleUsernameChange(e.target.value)}
+                error={isSelfTransaction ? 'Self transaction not allowed. Please enter another receiver username.' : undefined}
                 helperText="Username must be bank-assigned (not phone number)"
                 required
                 disabled={searchingReceiver}
@@ -103,13 +121,13 @@ export function SendMoney() {
                   <span className="text-sm">Searching receiver...</span>
                 </div>
               )}
-              {receiverFound && !searchingReceiver && (
+              {receiverFound && !searchingReceiver && !isSelfTransaction && (
                 <div className="mt-2 flex items-center gap-2 text-emerald-600">
                   <CheckCircle size={16} />
                   <span className="text-sm">Receiver found in database</span>
                 </div>
               )}
-              {receiverFound === false && !searchingReceiver && (
+              {receiverFound === false && !searchingReceiver && !isSelfTransaction && (
                 <div className="mt-2 flex items-center gap-2 text-red-600">
                   <AlertCircle size={16} />
                   <span className="text-sm">Receiver not found</span>
@@ -148,7 +166,7 @@ export function SendMoney() {
               </div>
             )}
 
-            <Button type="submit" fullWidth disabled={exceedsLimit || !receiverFound || searchingReceiver}>
+            <Button type="submit" fullWidth disabled={exceedsLimit || isSelfTransaction || !receiverFound || searchingReceiver}>
               Proceed
             </Button>
           </form>

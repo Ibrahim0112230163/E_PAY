@@ -25,16 +25,24 @@ SUPABASE_KEY = SUPABASE_SERVICE_ROLE_KEY or os.environ.get('SUPABASE_KEY', CONFI
 app = Flask(__name__, static_folder=str(FRONTEND_DIST_DIR), static_url_path='')
 CORS(app)  # Enable CORS for frontend communication
 crypto = CryptoEngine()
+SANDBOX_FAKE_DB = os.environ.get("SANDBOX_FAKE_DB", "").strip().lower() in {"1", "true", "yes", "on"}
 
-if not SUPABASE_SERVICE_ROLE_KEY:
+if not SANDBOX_FAKE_DB and not SUPABASE_SERVICE_ROLE_KEY:
     print(
         "Warning: SUPABASE_SERVICE_ROLE_KEY is not set. "
         "Registration requires a Supabase service-role key or matching RLS insert policies.",
         flush=True,
     )
 
-# Initialize Supabase client (uses service role key from .env.backend)
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+# Initialize Supabase client (uses service role key from .env.backend) or an
+# in-memory fake client for offline security testing.
+if SANDBOX_FAKE_DB:
+    from fake_supabase import create_fake_supabase_client
+
+    supabase = create_fake_supabase_client(crypto)
+    print("SANDBOX_FAKE_DB is enabled. Using in-memory fake banking data.", flush=True)
+else:
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # In-memory session store: token -> username
 active_sessions: dict[str, str] = {}
@@ -205,6 +213,10 @@ def update_daily_spend(profile_id, today_spent):
         print(f"Error updating daily spend: {e}")
         return False
 
+def same_username(left, right):
+    """Compare usernames after normalizing user-entered casing and spacing."""
+    return str(left or "").strip().casefold() == str(right or "").strip().casefold()
+
 # ========================================
 # API Endpoints
 # ========================================
@@ -336,10 +348,16 @@ def process_transfer():
         # 4. Data extraction
         try:
             parts = message_m.split('|')
-            receiver_username = parts[0].split(':')[1]
+            receiver_username = parts[0].split(':')[1].strip()
             amount = float(parts[1].split(':')[1])
         except Exception:
             return jsonify({"status": "error", "message": "Invalid message format"}), 400
+
+        if same_username(username, receiver_username):
+            return jsonify({
+                "status": "error",
+                "message": "Self transaction not allowed. Please enter another receiver username."
+            }), 400
 
         # 5. Find receiver
         receiver_account = get_receiver_account(receiver_username)

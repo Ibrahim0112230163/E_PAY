@@ -53,6 +53,13 @@ export function TransactionResult() {
       title: 'Receiver Not Found in Database',
       message: 'The receiver username does not exist in our system',
     },
+    self_transaction: {
+      icon: AlertTriangle,
+      color: 'text-amber-500',
+      bgColor: 'bg-amber-100',
+      title: 'Self Transaction Not Allowed',
+      message: 'Please enter another receiver username to continue.',
+    },
     error: {
       icon: AlertTriangle,
       color: 'text-red-500',
