@@ -1,11 +1,8 @@
-// Session storage for user credentials and keys
+// Session storage for non-sensitive user session data.
 export interface UserSession {
   id: string;
   username: string;
   token: string;
-  k1: string; // Secret key for HMAC
-  k2: string; // Password key for encryption
-  bp: string; // Biometric template
   t: string; // Last successful timestamp
   balance: number;
   accountId: string; // Supabase account ID

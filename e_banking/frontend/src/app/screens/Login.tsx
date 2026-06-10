@@ -35,9 +35,6 @@ export function Login() {
         id: user.id,
         username: user.username,
         token: result.token || '',
-        k1: user.k1,
-        k2: user.k2,
-        bp: user.bp || '123456',
         t: user.t,
         balance: user.balance,
         accountId: user.accountId,
@@ -94,7 +91,7 @@ export function Login() {
               placeholder="Enter your K2 password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              helperText="The backend verifies a password hash and returns stretched K2 for encryption"
+              helperText="The backend verifies your password without exposing key material"
               required
               disabled={isLoading}
             />
@@ -130,7 +127,7 @@ export function Login() {
                 <h3 className="text-white text-base">HMAC + AES</h3>
               </div>
               <p className="text-sm text-white/75">
-                Each transfer produces F1 with K1, encrypts M|F1 with K2, BP, and T, then the server verifies F2.
+                Transfer integrity and timestamp checks are handled by the backend without returning secret keys to the browser.
               </p>
             </div>
             <div className="rounded-lg bg-white/10 p-4">

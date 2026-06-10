@@ -1,6 +1,5 @@
 // API client to communicate with Python backend
 import { getUserSession } from './session';
-import type { EncryptedPayload } from './crypto';
 
 const configuredApiBaseUrl = import.meta.env?.VITE_BACKEND_URL;
 const isHttpsPage =
@@ -24,12 +23,6 @@ function getAuthHeaders(): Record<string, string> {
   return headers;
 }
 
-export interface TransferRequest {
-  username: string;
-  payload: string; // encrypted ciphertext
-  iv: string; // initialization vector
-}
-
 export interface TransferResponse {
   status: 'success' | 'error' | 'futile';
   message: string;
@@ -39,7 +32,8 @@ export interface TransferResponse {
 
 export async function processTransfer(
   username: string,
-  encryptedPayload: EncryptedPayload
+  receiver: string,
+  amount: number
 ): Promise<TransferResponse> {
   try {
     const response = await fetch(`${API_BASE_URL}/transfer`, {
@@ -47,8 +41,8 @@ export async function processTransfer(
       headers: getAuthHeaders(),
       body: JSON.stringify({
         username,
-        payload: encryptedPayload.payload,
-        iv: encryptedPayload.iv,
+        receiver,
+        amount,
       }),
     });
 
@@ -141,9 +135,6 @@ export async function loginUser(username: string, password: string): Promise<{
   user?: {
     id: string;
     username: string;
-    k1: string;
-    k2: string;
-    bp: string;
     t: string;
     balance: number;
     accountId: string;

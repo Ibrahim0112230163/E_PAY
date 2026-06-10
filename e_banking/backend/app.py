@@ -1,8 +1,9 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, g
 import uuid
 from flask_cors import CORS
 from crypto import CryptoEngine
 import datetime
+import re
 from supabase import create_client, Client
 from supabase_config import SUPABASE_URL as CONFIG_URL, SUPABASE_KEY as CONFIG_KEY
 import os
@@ -23,7 +24,21 @@ SUPABASE_SERVICE_ROLE_KEY = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
 SUPABASE_KEY = SUPABASE_SERVICE_ROLE_KEY or os.environ.get('SUPABASE_KEY', CONFIG_KEY)
 
 app = Flask(__name__, static_folder=str(FRONTEND_DIST_DIR), static_url_path='')
-CORS(app)  # Enable CORS for frontend communication
+
+DEFAULT_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+    "https://localhost",
+    "https://127.0.0.1",
+]
+cors_origins = [
+    origin.strip()
+    for origin in os.environ.get("FRONTEND_ORIGINS", ",".join(DEFAULT_CORS_ORIGINS)).split(",")
+    if origin.strip()
+]
+CORS(app, origins=cors_origins)
 crypto = CryptoEngine()
 SANDBOX_FAKE_DB = os.environ.get("SANDBOX_FAKE_DB", "").strip().lower() in {"1", "true", "yes", "on"}
 
@@ -46,6 +61,8 @@ else:
 
 # In-memory session store: token -> username
 active_sessions: dict[str, str] = {}
+
+USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_-]{3,32}$")
 
 MISSING_SCHEMA_MESSAGE = (
     "Supabase tables are missing. Run database/SUPABASE_NEW_DATABASE_SETUP.sql in the Supabase SQL Editor "
@@ -89,6 +106,51 @@ def missing_frontend_response():
     return jsonify({"status": "error", "message": message}), 503
 
 
+@app.after_request
+def add_security_headers(response):
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    response.headers.setdefault(
+        "Content-Security-Policy",
+        "default-src 'self'; "
+        "script-src 'self'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; "
+        "font-src 'self' data:; "
+        "connect-src 'self' http://localhost:5001 http://127.0.0.1:5001; "
+        "base-uri 'self'; "
+        "frame-ancestors 'none'",
+    )
+    return response
+
+
+def get_json_body():
+    data = request.get_json(silent=True)
+    if not isinstance(data, dict):
+        return None
+    return data
+
+
+def validate_username(username):
+    if not isinstance(username, str):
+        return None
+    normalized = username.strip()
+    if not USERNAME_PATTERN.fullmatch(normalized):
+        return None
+    return normalized
+
+
+def authenticated_username():
+    return getattr(g, "authenticated_username", None)
+
+
+def authorize_username(username):
+    if not same_username(authenticated_username(), username):
+        return jsonify({"status": "error", "message": "Forbidden"}), 403
+    return None
+
+
 def create_notification(profile_id, title, message, notification_type="system", transaction_id=None):
     try:
         notification_data = {
@@ -112,9 +174,11 @@ def require_auth(f):
     """Decorator to require a valid session token."""
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization', '').replace('Bearer ', '')
+        auth_header = request.headers.get('Authorization', '')
+        token = auth_header[7:].strip() if auth_header.startswith('Bearer ') else ''
         if not token or token not in active_sessions:
             return jsonify({"status": "error", "message": "Unauthorized"}), 401
+        g.authenticated_username = active_sessions[token]
         return f(*args, **kwargs)
     return decorated
 
@@ -236,8 +300,11 @@ def serve_index():
 def login():
     """Authenticate user by username and password"""
     try:
-        data = request.get_json()
-        username = data.get('username')
+        data = get_json_body()
+        if data is None:
+            return jsonify({"status": "error", "message": "Invalid JSON request body"}), 400
+
+        username = validate_username(data.get('username'))
         password = data.get('password')
 
         if not username or not password:
@@ -263,7 +330,7 @@ def login():
             return jsonify({"status": "error", "message": "Account not found"}), 404
 
         token = generate_session_token()
-        active_sessions[token] = username
+        active_sessions[token] = user_profile['registration_number']
         create_notification(user_profile['id'], "Login successful", "Your account was accessed with K2 authentication.", "login")
 
         return jsonify({
@@ -272,9 +339,6 @@ def login():
             "user": {
                 "id": user_profile['id'],
                 "username": user_profile['registration_number'],
-                "k1": user_profile['hmac_key_k1'],
-                "k2": user_profile['password_key_k2'],
-                "bp": user_profile.get('fingerprint_bp') or '123456',
                 "t": user_profile['timestamp_t'],
                 "balance": float(user_account['balance']),
                 "accountId": user_account['id'],
@@ -305,13 +369,22 @@ def process_transfer():
     }
     """
     try:
-        data = request.get_json()
-        username = data.get('username')
+        data = get_json_body()
+        if data is None:
+            return jsonify({"status": "error", "message": "Invalid JSON request body"}), 400
+
+        username = validate_username(data.get('username'))
         encrypted_payload = data.get('payload')
         iv = data.get('iv')
+        receiver_from_request = validate_username(data.get('receiver') or data.get('receiverUsername'))
+        amount_from_request = data.get('amount')
 
-        if not username or not encrypted_payload or not iv:
-            return jsonify({"status": "error", "message": "Missing username, payload, or iv"}), 400
+        if not username:
+            return jsonify({"status": "error", "message": "Missing or invalid username"}), 400
+
+        forbidden = authorize_username(username)
+        if forbidden:
+            return forbidden
 
         # 1. Fetch user from Supabase
         user_profile = get_user_profile(username)
@@ -322,36 +395,53 @@ def process_transfer():
         if not user_account:
             return jsonify({"status": "error", "message": "User account not found"}), 404
 
-        # 2. Decryption (K2, BP, T)
-        decrypted_data = crypto.decrypt_data(
-            encrypted_payload,
-            iv,
-            user_profile['password_key_k2'],
-            user_profile.get('fingerprint_bp') or '123456',
-            user_profile['timestamp_t']
-        )
+        if encrypted_payload and iv:
+            # 2. Decryption (K2, BP, T)
+            decrypted_data = crypto.decrypt_data(
+                encrypted_payload,
+                iv,
+                user_profile['password_key_k2'],
+                user_profile.get('fingerprint_bp') or '123456',
+                user_profile['timestamp_t']
+            )
 
-        if not decrypted_data:
-            return jsonify({"status": "error", "message": "Decryption failed or invalid Timestamp"}), 401
+            if not decrypted_data:
+                return jsonify({"status": "error", "message": "Decryption failed or invalid Timestamp"}), 401
 
-        message_m = decrypted_data['M']  # "Receiver:Bob|Amt:1000"
-        f1_from_user = decrypted_data['F1']
+            message_m = decrypted_data['M']  # "Receiver:Bob|Amt:1000"
+            f1_from_user = decrypted_data['F1']
 
-        # 3. Integrity check (HMAC verification)
-        f2_generated = crypto.generate_hmac(user_profile['hmac_key_k1'], message_m)
+            # 3. Integrity check (HMAC verification)
+            f2_generated = crypto.generate_hmac(user_profile['hmac_key_k1'], message_m)
 
-        if f1_from_user != f2_generated:
-            txn = record_transaction(user_account['id'], None, 0, 'aborted', 'HMAC mismatch')
-            create_notification(user_profile['id'], "Transfer aborted", "Message integrity check failed before transfer.", "transfer_aborted", txn.get('id') if txn else None)
-            return jsonify({"status": "error", "message": "Data integrity compromised (HMAC mismatch)"}), 403
+            if f1_from_user != f2_generated:
+                txn = record_transaction(user_account['id'], None, 0, 'aborted', 'HMAC mismatch')
+                create_notification(user_profile['id'], "Transfer aborted", "Message integrity check failed before transfer.", "transfer_aborted", txn.get('id') if txn else None)
+                return jsonify({"status": "error", "message": "Data integrity compromised (HMAC mismatch)"}), 403
 
-        # 4. Data extraction
-        try:
-            parts = message_m.split('|')
-            receiver_username = parts[0].split(':')[1].strip()
-            amount = float(parts[1].split(':')[1])
-        except Exception:
-            return jsonify({"status": "error", "message": "Invalid message format"}), 400
+            # 4. Data extraction
+            try:
+                parts = message_m.split('|')
+                if len(parts) != 2:
+                    raise ValueError("Unexpected transfer message part count")
+                receiver_username = validate_username(parts[0].split(':', 1)[1])
+                amount = float(parts[1].split(':', 1)[1])
+            except Exception:
+                return jsonify({"status": "error", "message": "Invalid message format"}), 400
+        elif receiver_from_request and amount_from_request is not None:
+            receiver_username = receiver_from_request
+            try:
+                amount = float(amount_from_request)
+            except (TypeError, ValueError):
+                return jsonify({"status": "error", "message": "Invalid amount"}), 400
+        else:
+            return jsonify({"status": "error", "message": "Missing transfer payload or receiver/amount"}), 400
+
+        if not receiver_username:
+            return jsonify({"status": "error", "message": "Invalid receiver username"}), 400
+
+        if amount <= 0:
+            return jsonify({"status": "error", "message": "Amount must be greater than zero"}), 400
 
         if same_username(username, receiver_username):
             return jsonify({
@@ -409,6 +499,14 @@ def process_transfer():
 def get_user(username):
     """Get user profile and account information"""
     try:
+        username = validate_username(username)
+        if not username:
+            return jsonify({"status": "error", "message": "Invalid username"}), 400
+
+        forbidden = authorize_username(username)
+        if forbidden:
+            return forbidden
+
         user_profile = get_user_profile(username)
         if not user_profile:
             return jsonify({"status": "error", "message": "User not found"}), 404
@@ -439,6 +537,14 @@ def get_user(username):
 def get_transactions(username):
     """Get user's transaction history (both sent and received)"""
     try:
+        username = validate_username(username)
+        if not username:
+            return jsonify({"status": "error", "message": "Invalid username"}), 400
+
+        forbidden = authorize_username(username)
+        if forbidden:
+            return forbidden
+
         user_profile = get_user_profile(username)
         if not user_profile:
             return jsonify({"status": "error", "message": "User not found"}), 404
@@ -516,6 +622,14 @@ def get_transactions(username):
 def get_notifications(username):
     """Get recent notification messages for a user."""
     try:
+        username = validate_username(username)
+        if not username:
+            return jsonify({"status": "error", "message": "Invalid username"}), 400
+
+        forbidden = authorize_username(username)
+        if forbidden:
+            return forbidden
+
         user_profile = get_user_profile(username)
         if not user_profile:
             return jsonify({"status": "error", "message": "User not found"}), 404
@@ -544,8 +658,11 @@ def get_notifications(username):
 def register():
     """Register a new user account"""
     try:
-        data = request.get_json()
-        username = data.get('username')
+        data = get_json_body()
+        if data is None:
+            return jsonify({"status": "error", "message": "Invalid JSON request body"}), 400
+
+        username = validate_username(data.get('username'))
         password = data.get('password')
         nid = data.get('nid') or data.get('brc') or ''
         activation_code = data.get('activationCode') or data.get('activation_code') or ''
@@ -637,6 +754,10 @@ def register():
 def check_receiver(username):
     """Check if a receiver username exists"""
     try:
+        username = validate_username(username)
+        if not username:
+            return jsonify({"status": "error", "message": "Invalid receiver username"}), 400
+
         profile = get_user_profile(username)
         if not profile:
             return jsonify({"status": "error", "message": "Receiver not found"}), 404

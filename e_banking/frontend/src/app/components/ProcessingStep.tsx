@@ -10,18 +10,18 @@ export function ProcessingStep({ currentStep, timestamp }: ProcessingStepProps) 
   const steps = [
     {
       icon: Hash,
-      title: 'Generating Message Integrity Code (HMAC)...',
-      description: 'F1 = F(M, K1)',
+      title: 'Preparing transfer request...',
+      description: 'Session and transfer details ready',
     },
     {
       icon: Lock,
-      title: 'Encrypting with AES using K2 + BP + Timestamp...',
-      description: 'AES Encryption Active',
+      title: 'Verifying secure session...',
+      description: 'Key material stays server-side',
     },
     {
       icon: Send,
-      title: 'Transmitting through secure channel...',
-      description: 'Data transmission in progress',
+      title: 'Submitting transfer...',
+      description: 'Balance update in progress',
     },
   ];
 

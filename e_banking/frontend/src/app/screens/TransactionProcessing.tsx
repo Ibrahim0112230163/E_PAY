@@ -3,7 +3,6 @@ import { useNavigate, useLocation } from 'react-router';
 import { ProcessingStep } from '../components/ProcessingStep';
 import { motion } from 'motion/react';
 import { getUserSession, updateUserTimestamp, updateUserBalance } from '../../utils/session';
-import { cryptoEngine } from '../../utils/crypto';
 import { processTransfer } from '../../utils/api';
 
 export function TransactionProcessing() {
@@ -37,48 +36,15 @@ export function TransactionProcessing() {
       return;
     }
 
-    // Validate session has all required crypto fields
-    const biometricFingerprint = session.bp || '123456';
-
-    if (!session.k1 || !session.k2 || !session.t) {
-      console.error('Missing crypto fields in session:', { 
-        k1: !!session.k1, 
-        k2: !!session.k2, 
-        bp: !!biometricFingerprint,
-        t: !!session.t 
-      });
-      setTransactionStatus('failed');
-      setTimeout(() => {
-        navigate('/transaction-result', {
-          state: {
-            receiverUsername,
-            amount,
-            timestamp,
-            status: 'error',
-            errorMessage: 'User profile missing required cryptographic credentials. Please login again.',
-          },
-        });
-      }, 1000);
-      return;
-    }
-
     setCurrentStep(0);
 
     try {
-      // Step 1: Prepare message
-      const message = `Receiver:${receiverUsername}|Amt:${Math.floor(amount * 100) / 100}`;
-      
-      // Step 2: Generate HMAC (F1)
-      const f1 = cryptoEngine.generateHmac(session.k1, message);
-      
-      // Step 3: Encrypt data
-      const encryptedPayload = cryptoEngine.encryptData(message, f1, session.k2, biometricFingerprint, session.t);
-
+      // Step 1: Prepare transfer request
       setCurrentStep(1);
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Step 4: Send to backend
-      const response = await processTransfer(session.username, encryptedPayload);
+      // Step 2: Send to backend
+      const response = await processTransfer(session.username, receiverUsername, amount);
 
       setCurrentStep(2);
       await new Promise(resolve => setTimeout(resolve, 1500));
@@ -172,7 +138,7 @@ export function TransactionProcessing() {
             </div>
             <h2 className="mb-2">Processing Transaction</h2>
             <p className="text-muted-foreground">
-              Cryptographic operations in progress
+              Secure transfer verification in progress
             </p>
           </div>
 
@@ -197,7 +163,7 @@ export function TransactionProcessing() {
 
           <div className="mt-8 text-center">
             <p className="text-xs text-muted-foreground">
-              Methodology: HMAC(K1) + AES(K2+BP+T) → Insecure Channel
+              Secret key material remains on the backend during transfer verification
             </p>
           </div>
       </motion.div>
