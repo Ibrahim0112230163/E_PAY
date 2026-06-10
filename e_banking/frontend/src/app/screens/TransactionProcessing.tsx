@@ -117,6 +117,7 @@ export function TransactionProcessing() {
         const statusMap: Record<string, string> = {
           'HMAC mismatch': 'hmac_mismatch',
           'User not found': 'receiver_not_found',
+          'Self transaction not allowed': 'self_transaction',
         };
         const mappedStatus = Object.keys(statusMap).find(key => response.message.includes(key)) 
           ? statusMap[Object.keys(statusMap).find(key => response.message.includes(key))!]
