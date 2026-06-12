@@ -20,7 +20,7 @@ export function OfficerVerify() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6FAF9] p-4">
+    <div className="min-h-screen bg-[#F8FAFC] p-4">
       <div className="max-w-5xl mx-auto py-6">
         <button
           onClick={() => navigate(-1)}
@@ -32,7 +32,7 @@ export function OfficerVerify() {
 
         <div className="grid gap-6 md:grid-cols-[380px_1fr]">
           <aside className="rounded-lg bg-white border border-border p-6 shadow-sm">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#E8F5F3] text-[#0D7C66] mb-5">
+            <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-[#EFF6FF] text-[#2563EB] mb-5">
               <ShieldCheck size={26} />
             </div>
             <h1 className="mb-2">Bank officer verification</h1>
@@ -41,12 +41,12 @@ export function OfficerVerify() {
             </p>
 
             <div className="mt-6 space-y-3">
-              <div className="flex gap-3 rounded-lg bg-[#F6FAF9] p-3">
-                <KeyRound className="text-[#0D7C66] shrink-0" size={20} />
+              <div className="flex gap-3 rounded-lg bg-[#F8FAFC] p-3">
+                <KeyRound className="text-[#2563EB] shrink-0" size={20} />
                 <p className="text-sm">K1 is used for HMAC F1/F2 message authentication.</p>
               </div>
-              <div className="flex gap-3 rounded-lg bg-[#F6FAF9] p-3">
-                <Fingerprint className="text-[#0D7C66] shrink-0" size={20} />
+              <div className="flex gap-3 rounded-lg bg-[#F8FAFC] p-3">
+                <Fingerprint className="text-[#2563EB] shrink-0" size={20} />
                 <p className="text-sm">BP is fixed to 123456 for the current prototype.</p>
               </div>
             </div>

@@ -88,7 +88,7 @@ export function SendMoney() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-[#0D7C66] text-white px-4 py-6">
+      <div className="bg-[#2563EB] text-white px-4 py-6">
         <div className="max-w-2xl mx-auto flex items-center gap-4">
           <button
             onClick={() => navigate(-1)}
@@ -148,7 +148,7 @@ export function SendMoney() {
                 step="0.01"
               />
               <div className="mt-2 text-sm text-muted-foreground">
-                Daily limit remaining: <span className="font-semibold text-[#0D7C66]">৳{remaining.toFixed(2)}</span>
+                Daily limit remaining: <span className="font-semibold text-[#2563EB]">৳{remaining.toFixed(2)}</span>
               </div>
             </div>
 

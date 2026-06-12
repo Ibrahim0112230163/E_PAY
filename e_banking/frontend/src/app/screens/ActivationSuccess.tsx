@@ -9,7 +9,7 @@ export function ActivationSuccess() {
   const { username } = location.state || {};
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#E8F5F3] to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-[#EFF6FF] to-white flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <motion.div
@@ -34,12 +34,12 @@ export function ActivationSuccess() {
 
           <div className="flex items-center justify-between pb-4 border-b border-border">
             <span className="text-muted-foreground">Daily Transaction Limit</span>
-            <span className="font-semibold text-[#0D7C66]">৳5,000.00</span>
+            <span className="font-semibold text-[#2563EB]">৳5,000.00</span>
           </div>
 
-          <div className="bg-[#E8F5F3] rounded-lg p-4">
+          <div className="bg-[#EFF6FF] rounded-lg p-4">
             <h4 className="mb-3 flex items-center gap-2">
-              <Shield size={18} className="text-[#0D7C66]" />
+              <Shield size={18} className="text-[#2563EB]" />
               Security Features Enabled
             </h4>
             <div className="space-y-2 text-sm">

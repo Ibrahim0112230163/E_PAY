@@ -142,19 +142,19 @@ export function TransactionProcessing() {
             </p>
           </div>
 
-          <div className="bg-[#E8F5F3] rounded-xl p-6 mb-6">
+          <div className="bg-[#EFF6FF] rounded-xl p-6 mb-6">
             <div className="flex items-center justify-between text-sm mb-2">
               <span className="text-muted-foreground">To:</span>
               <span className="font-semibold">@{receiverUsername}</span>
             </div>
             <div className="flex items-center justify-between text-sm mb-4">
               <span className="text-muted-foreground">Amount:</span>
-              <span className="font-semibold text-[#0D7C66]">৳{amount.toFixed(2)}</span>
+              <span className="font-semibold text-[#2563EB]">৳{amount.toFixed(2)}</span>
             </div>
             {timestamp && (
               <div className="flex items-center justify-between text-xs border-t border-border pt-2">
                 <span className="text-muted-foreground">Transaction Time (T):</span>
-                <span className="font-mono text-[#0D7C66]">{timestamp}</span>
+                <span className="font-mono text-[#2563EB]">{timestamp}</span>
               </div>
             )}
           </div>

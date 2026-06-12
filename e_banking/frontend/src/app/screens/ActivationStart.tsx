@@ -24,9 +24,9 @@ export function ActivationStart() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-[#F6FAF9] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
       <div className="max-w-5xl w-full grid gap-6 md:grid-cols-[1fr_420px] items-stretch">
-        <section className="rounded-lg bg-[#0D7C66] text-white p-6 md:p-8 flex flex-col justify-between">
+        <section className="rounded-lg bg-[#2563EB] text-white p-6 md:p-8 flex flex-col justify-between">
           <div>
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/15 mb-6">
               <ShieldCheck size={28} />
@@ -70,8 +70,8 @@ export function ActivationStart() {
             </Button>
           </div>
 
-          <div className="mt-6 rounded-lg bg-[#E8F5F3] p-4">
-            <p className="text-sm text-[#0B6B57]">
+          <div className="mt-6 rounded-lg bg-[#EFF6FF] p-4">
+            <p className="text-sm text-[#1E40AF]">
               No OTP, no phone-number transfer, no SMS recovery. Transactions are username-to-username and verified by encrypted message integrity.
             </p>
           </div>

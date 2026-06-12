@@ -18,10 +18,10 @@ export function BiometricEnrollment() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#E8F5F3] to-white flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-[#EFF6FF] to-white flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#0D7C66] rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#2563EB] rounded-full mb-4">
             <Fingerprint size={32} className="text-white" />
           </div>
           <h1 className="mb-2">Biometric Fingerprint</h1>
@@ -33,7 +33,7 @@ export function BiometricEnrollment() {
         <div className="bg-white rounded-2xl p-8 shadow-lg border border-border mb-6">
           <div className="text-center">
             <p className="text-sm text-muted-foreground mb-2">Fingerprint BP</p>
-            <p className="font-mono text-2xl text-[#0D7C66]">{DEFAULT_BIOMETRIC_FINGERPRINT}</p>
+            <p className="font-mono text-2xl text-[#2563EB]">{DEFAULT_BIOMETRIC_FINGERPRINT}</p>
           </div>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">

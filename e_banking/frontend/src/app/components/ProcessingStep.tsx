@@ -47,7 +47,7 @@ export function ProcessingStep({ currentStep, timestamp }: ProcessingStepProps) 
                 isComplete
                   ? 'bg-emerald-100 text-emerald-600'
                   : isActive
-                  ? 'bg-[#0D7C66] text-white'
+                  ? 'bg-blue-600 text-white'
                   : 'bg-muted text-muted-foreground'
               }`}
             >
@@ -57,7 +57,7 @@ export function ProcessingStep({ currentStep, timestamp }: ProcessingStepProps) 
               <h4 className="mb-1">{step.title}</h4>
               <p className="text-sm text-muted-foreground">{step.description}</p>
               {isActive && index === 1 && timestamp && (
-                <p className="text-xs text-[#0D7C66] mt-2 font-mono">
+                <p className="text-xs text-blue-600 mt-2 font-mono">
                   T: {timestamp}
                 </p>
               )}
@@ -66,7 +66,7 @@ export function ProcessingStep({ currentStep, timestamp }: ProcessingStepProps) 
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                className="w-6 h-6 border-3 border-[#0D7C66] border-t-transparent rounded-full"
+                className="w-6 h-6 border-3 border-blue-600 border-t-transparent rounded-full"
               />
             )}
           </motion.div>

@@ -70,9 +70,9 @@ export function CreatePassword() {
   const passwordStrength = formData.password ? getPasswordStrength(formData.password) : null;
 
   return (
-    <div className="min-h-screen bg-[#F6FAF9] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
       <div className="max-w-4xl w-full grid gap-6 md:grid-cols-[360px_1fr]">
-        <aside className="rounded-lg bg-[#0D7C66] text-white p-6">
+        <aside className="rounded-lg bg-[#2563EB] text-white p-6">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-lg bg-white/15 mb-5">
             <KeyRound size={26} />
           </div>
@@ -95,7 +95,7 @@ export function CreatePassword() {
 
         <section className="rounded-lg bg-white border border-border p-6 shadow-sm">
           <div className="flex items-center gap-3 mb-5">
-            <div className="h-10 w-10 rounded-lg bg-[#E8F5F3] text-[#0D7C66] flex items-center justify-center">
+            <div className="h-10 w-10 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center">
               <Lock size={22} />
             </div>
             <div>

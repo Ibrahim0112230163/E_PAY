@@ -103,7 +103,7 @@ export function TransactionResult() {
           </div>
         )}
 
-        <div className="bg-[#E8F5F3] rounded-xl p-6 mb-6 space-y-3">
+        <div className="bg-[#EFF6FF] rounded-xl p-6 mb-6 space-y-3">
           <div className="flex items-center justify-between pb-3 border-b border-border">
             <span className="text-muted-foreground">Sent to:</span>
             <span className="font-semibold">@{receiverUsername}</span>
@@ -115,7 +115,7 @@ export function TransactionResult() {
           {isSuccess && calculatedBalance !== undefined && (
             <div className="flex items-center justify-between pb-3 border-b border-border">
               <span className="text-muted-foreground">New Balance:</span>
-              <span className="font-semibold text-[#0D7C66]">৳{calculatedBalance.toFixed(2)}</span>
+              <span className="font-semibold text-[#2563EB]">৳{calculatedBalance.toFixed(2)}</span>
             </div>
           )}
           <div className="flex items-center justify-between">
@@ -127,11 +127,11 @@ export function TransactionResult() {
         {isSuccess ? (
           <div className="bg-white border border-border rounded-xl p-4 mb-6">
             <div className="flex items-start gap-3">
-              <Shield size={20} className="text-[#0D7C66] flex-shrink-0 mt-0.5" />
+              <Shield size={20} className="text-[#2563EB] flex-shrink-0 mt-0.5" />
               <div>
                 <h4 className="mb-1">Cryptographic Verification Complete</h4>
                 <p className="text-sm text-muted-foreground">
-                  Server-side HMAC check passed: <span className="font-mono text-[#0D7C66]">F1 = F2</span>
+                  Server-side HMAC check passed: <span className="font-mono text-[#2563EB]">F1 = F2</span>
                 </p>
                 <p className="text-xs text-muted-foreground mt-2">
                   Message integrity verified • AES decryption successful • Transaction committed
@@ -154,7 +154,7 @@ export function TransactionResult() {
         <div className="mt-4 text-center">
           <button
             onClick={() => navigate('/history')}
-            className="text-sm text-[#0D7C66] hover:underline"
+            className="text-sm text-[#2563EB] hover:underline"
           >
             View Transaction History
           </button>

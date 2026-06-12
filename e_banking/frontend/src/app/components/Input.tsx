@@ -18,14 +18,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
       <div className="w-full">
         {label && (
           <label className="block mb-2 text-foreground">
-            {label} {showK2Label && <span className="text-[#0D7C66]">(K2)</span>}
+            {label} {showK2Label && <span className="text-blue-600">(K2)</span>}
           </label>
         )}
         <div className="relative">
           <input
             ref={ref}
             type={inputType}
-            className={`w-full px-4 py-3 bg-input-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-[#0D7C66] transition-all ${error ? 'border-destructive' : ''} ${className}`}
+            className={`w-full px-4 py-3 bg-input-background rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${error ? 'border-destructive' : ''} ${className}`}
             {...props}
           />
           {isPassword && (

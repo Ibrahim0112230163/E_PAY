@@ -16,14 +16,14 @@ export function SecurityBadge({ type, className = '' }: SecurityBadgeProps) {
     'hmac-verified': {
       icon: CheckCircle,
       text: 'HMAC Verified',
-      color: 'text-[#0D7C66]',
-      bgColor: 'bg-[#E8F5F3]',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
     },
     'aes-secured': {
       icon: Lock,
       text: 'AES Secured',
-      color: 'text-[#0D7C66]',
-      bgColor: 'bg-[#E8F5F3]',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
     },
     'integrity-check': {
       icon: Hash,

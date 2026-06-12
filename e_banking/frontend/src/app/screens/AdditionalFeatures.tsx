@@ -101,7 +101,7 @@ export function AdditionalFeatures() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="bg-gradient-to-r from-[#0D7C66] to-blue-600 text-white px-4 py-6">
+      <div className="bg-gradient-to-r from-[#2563EB] to-blue-600 text-white px-4 py-6">
         <div className="max-w-2xl mx-auto flex items-center gap-4">
           <button
             onClick={() => navigate(-1)}
@@ -186,7 +186,7 @@ export function AdditionalFeatures() {
                               <motion.div
                                 animate={{ y: [0, 200, 0] }}
                                 transition={{ repeat: Infinity, duration: 2 }}
-                                className="absolute inset-x-0 top-0 h-1 bg-[#0D7C66] shadow-lg shadow-[#0D7C66]/50"
+                                className="absolute inset-x-0 top-0 h-1 bg-[#2563EB] shadow-lg shadow-[#2563EB]/50"
                               />
                               <div className="absolute inset-4 border-2 border-white rounded-xl" />
                               <div className="absolute inset-0 flex items-center justify-center">
@@ -195,7 +195,7 @@ export function AdditionalFeatures() {
                             </div>
                           ) : (
                             <div className="text-center py-8">
-                              <QrCode size={64} className="text-[#0D7C66] mx-auto mb-4" />
+                              <QrCode size={64} className="text-[#2563EB] mx-auto mb-4" />
                               <h4 className="mb-2">Scan Merchant QR Code</h4>
                               <p className="text-sm text-muted-foreground mb-4">
                                 Point your camera at the merchant's QR code to quickly initiate payment
@@ -223,7 +223,7 @@ export function AdditionalFeatures() {
                             </div>
                           ) : (
                             <div className="text-center py-8">
-                              <Smartphone size={64} className="text-[#0D7C66] mx-auto mb-4" />
+                              <Smartphone size={64} className="text-[#2563EB] mx-auto mb-4" />
                               <h4 className="mb-2">NFC Tap-to-Pay</h4>
                               <p className="text-sm text-muted-foreground mb-4">
                                 Make contactless payments by tapping your phone on NFC terminals
@@ -250,7 +250,7 @@ export function AdditionalFeatures() {
                               linkedCards.map((card, index) => (
                                 <div
                                   key={index}
-                                  className="flex items-center gap-3 p-4 bg-gradient-to-r from-[#0D7C66] to-blue-600 rounded-xl text-white"
+                                  className="flex items-center gap-3 p-4 bg-gradient-to-r from-[#2563EB] to-blue-600 rounded-xl text-white"
                                 >
                                   <CreditCard size={24} />
                                   <span className="font-mono">{card}</span>

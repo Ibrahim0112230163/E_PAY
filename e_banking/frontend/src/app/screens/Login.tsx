@@ -52,11 +52,11 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F6FAF9] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#F8FAFC] flex items-center justify-center p-4">
       <div className="max-w-5xl w-full grid gap-6 md:grid-cols-[1fr_420px]">
         <section className="rounded-lg bg-white border border-border p-6 md:p-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="h-12 w-12 rounded-lg bg-[#E8F5F3] text-[#0D7C66] flex items-center justify-center">
+            <div className="h-12 w-12 rounded-lg bg-[#EFF6FF] text-[#2563EB] flex items-center justify-center">
               <Lock size={26} />
             </div>
             <div>
@@ -104,7 +104,7 @@ export function Login() {
           <div className="mt-5 flex items-center justify-between gap-3 text-sm">
             <button
               onClick={() => navigate('/')}
-              className="text-[#0D7C66] hover:underline"
+              className="text-[#2563EB] hover:underline"
             >
               Activate new account
             </button>
@@ -117,7 +117,7 @@ export function Login() {
           </div>
         </section>
 
-        <aside className="rounded-lg bg-[#0D7C66] text-white p-6 md:p-8">
+        <aside className="rounded-lg bg-[#2563EB] text-white p-6 md:p-8">
           <ShieldCheck size={34} className="mb-5" />
           <h2 className="text-white mb-3">Paper-aligned security</h2>
           <div className="space-y-3">
