@@ -113,7 +113,6 @@ export function SendMoney() {
                 error={isSelfTransaction ? 'Self transaction not allowed. Please enter another receiver username.' : undefined}
                 helperText="Username must be bank-assigned (not phone number)"
                 required
-                disabled={searchingReceiver}
               />
               {searchingReceiver && (
                 <div className="mt-2 flex items-center gap-2 text-blue-600">
