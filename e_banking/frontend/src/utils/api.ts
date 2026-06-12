@@ -1,18 +1,12 @@
 // API client to communicate with Python backend
 import { getUserSession } from './session';
 
-const configuredApiBaseUrl = import.meta.env?.VITE_BACKEND_URL;
-const isHttpsPage =
-  typeof window !== 'undefined' && window.location.protocol === 'https:';
-const wouldDowngradeLocalhost =
-  configuredApiBaseUrl?.startsWith('http://localhost') ||
-  configuredApiBaseUrl?.startsWith('http://127.0.0.1');
-const API_BASE_URL =
-  isHttpsPage && (configuredApiBaseUrl === undefined || wouldDowngradeLocalhost)
-    ? ''
-    : configuredApiBaseUrl === undefined
-    ? 'http://localhost:5001'
-    : configuredApiBaseUrl.replace(/\/$/, '');
+const configuredApiBaseUrl = import.meta.env.VITE_BACKEND_URL;
+const API_BASE_URL = configuredApiBaseUrl
+  ? configuredApiBaseUrl.replace(/\/$/, '')
+  : import.meta.env.DEV
+  ? 'http://localhost:5001'
+  : '';
 
 function getAuthHeaders(): Record<string, string> {
   const session = getUserSession();
@@ -155,7 +149,10 @@ export async function loginUser(username: string, password: string): Promise<{
     return { status: 'success', message: 'Login successful', token: data.token, user: data.user };
   } catch (error) {
     console.error('Login API error:', error);
-    return { status: 'error', message: 'Cannot connect to backend server. Make sure it is running on port 5001.' };
+    const msg = import.meta.env.DEV
+      ? 'Cannot connect to backend server. Make sure it is running on port 5001.'
+      : 'Cannot connect to backend server. Please verify your internet connection or check backend status.';
+    return { status: 'error', message: msg };
   }
 }
 
