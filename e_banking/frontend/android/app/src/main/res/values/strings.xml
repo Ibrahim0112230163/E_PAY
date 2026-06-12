@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NiroPay</string>
+    <string name="title_activity_main">NiroPay</string>
+    <string name="package_name">com.niropay.app</string>
+    <string name="custom_url_scheme">com.niropay.app</string>
+</resources>

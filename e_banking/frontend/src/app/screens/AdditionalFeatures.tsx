@@ -8,8 +8,6 @@ import {
   QrCode,
   Smartphone,
   CreditCard,
-  Chrome,
-  Facebook,
   CheckCircle,
   Camera,
   Nfc,
@@ -57,9 +55,7 @@ export function AdditionalFeatures() {
     }
   };
 
-  const handleSocialLogin = (platform: string) => {
-    alert(`${platform} login initiated. This would redirect to ${platform} OAuth flow.`);
-  };
+
 
   const features = [
     {
@@ -90,13 +86,7 @@ export function AdditionalFeatures() {
       description: 'Link credit/debit cards',
       color: 'bg-amber-500',
     },
-    {
-      id: 'social',
-      icon: Chrome,
-      title: 'Social Login',
-      description: 'Quick login with social accounts',
-      color: 'bg-red-500',
-    },
+
   ];
 
   return (
@@ -267,36 +257,7 @@ export function AdditionalFeatures() {
                         </div>
                       )}
 
-                      {feature.id === 'social' && (
-                        <div className="space-y-4">
-                          <div className="space-y-3">
-                            <Button
-                              fullWidth
-                              variant="outline"
-                              onClick={() => handleSocialLogin('Google')}
-                              className="flex items-center justify-center gap-3 border-2"
-                            >
-                              <Chrome size={20} />
-                              Continue with Google
-                            </Button>
-                            <Button
-                              fullWidth
-                              variant="outline"
-                              onClick={() => handleSocialLogin('Facebook')}
-                              className="flex items-center justify-center gap-3 border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white"
-                            >
-                              <Facebook size={20} />
-                              Continue with Facebook
-                            </Button>
-                          </div>
-                          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                            <p className="text-xs text-amber-900">
-                              <strong>Note:</strong> Social login provides convenient access but does not replace
-                              the core K2 + BP + K1 authentication required for transactions.
-                            </p>
-                          </div>
-                        </div>
-                      )}
+
                     </div>
                   </motion.div>
                 )}
