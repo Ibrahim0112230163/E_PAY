@@ -26,6 +26,7 @@ SUPABASE_KEY = SUPABASE_SERVICE_ROLE_KEY or os.environ.get('SUPABASE_KEY', CONFI
 app = Flask(__name__, static_folder=str(FRONTEND_DIST_DIR), static_url_path='')
 
 DEFAULT_CORS_ORIGINS = [
+    "https://e-pay-fydp-xqi6.vercel.app",
     "https://e-pay-fydp-2xoq.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
@@ -301,9 +302,11 @@ def serve_index():
         return missing_frontend_response()
     return app.send_static_file('index.html')
 
-@app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST', 'OPTIONS'])
 def login():
     """Authenticate user by username and password"""
+    if request.method == 'OPTIONS':
+        return jsonify({}), 200
     try:
         data = get_json_body()
         if data is None:
