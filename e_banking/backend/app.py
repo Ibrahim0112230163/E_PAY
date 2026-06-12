@@ -26,6 +26,7 @@ SUPABASE_KEY = SUPABASE_SERVICE_ROLE_KEY or os.environ.get('SUPABASE_KEY', CONFI
 app = Flask(__name__, static_folder=str(FRONTEND_DIST_DIR), static_url_path='')
 
 DEFAULT_CORS_ORIGINS = [
+    "https://e-pay-fydp-2xoq.vercel.app",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://localhost:5173",
@@ -38,7 +39,11 @@ cors_origins = [
     for origin in os.environ.get("FRONTEND_ORIGINS", ",".join(DEFAULT_CORS_ORIGINS)).split(",")
     if origin.strip()
 ]
-CORS(app, origins=cors_origins)
+CORS(
+    app,
+    resources={r"/*": {"origins": cors_origins}},
+    supports_credentials=True
+)
 crypto = CryptoEngine()
 SANDBOX_FAKE_DB = os.environ.get("SANDBOX_FAKE_DB", "").strip().lower() in {"1", "true", "yes", "on"}
 
